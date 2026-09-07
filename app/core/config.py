@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     # Hugging Face Fine-Tuned Model Configuration
     HF_MODEL_REPO: str = "harshvdn2/qwen-artisan-description"
     HF_TOKEN: Optional[str] = None
+    # When set, overrides the default HF inference API URL.
+    # Use this to point at a Colab/ngrok-hosted Qwen API when
+    # api-inference.huggingface.co is blocked by your network.
+    QWEN_API_URL: Optional[str] = None
 
     # Render deployment configuration
     RENDER_EXTERNAL_URL: Optional[str] = None

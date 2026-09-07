@@ -37,10 +37,17 @@ class SpeechService:
             logger.info("No GOOGLE_CLOUD_API_KEY provided. Using mock speech transcription.")
             return self._mock_transcription(language)
 
+        # alternativeLanguageCodes lets Google STT auto-pick the best language from the audio.
+        # The primary languageCode is a ranked hint but NOT a hard constraint — Google picks
+        # whichever of the listed codes produces the highest-confidence transcription.
+        all_lang_codes = ["hi-IN", "mr-IN", "en-IN"]
+        alternative_codes = [c for c in all_lang_codes if c != lang_code]
+
         payload = {
             "config": {
                 "encoding": encoding,
                 "languageCode": lang_code,
+                "alternativeLanguageCodes": alternative_codes,
                 "enableAutomaticPunctuation": True,
             },
             "audio": {
@@ -64,10 +71,13 @@ class SpeechService:
                     results = data.get("results", [])
                     if results:
                         best_alt = results[0]["alternatives"][0]
+                        # When alternativeLanguageCodes are used, Google STT returns the
+                        # actual detected language in results[0].languageCode
+                        detected_lang_code = results[0].get("languageCode", lang_code)
                         return SpeechTranscribeResponse(
                             transcript=best_alt.get("transcript", ""),
                             confidence=float(best_alt.get("confidence", 0.95)),
-                            language_code=lang_code,
+                            language_code=detected_lang_code,
                             is_mock=False,
                         )
                     return SpeechTranscribeResponse(

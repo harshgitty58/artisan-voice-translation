@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan AI — Multilingual Voice & Translation Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-decor"></div>
+    
+    <header class="app-header">
+        <div class="brand">
+            <span class="brand-badge">SIH 2026</span>
+            <h1>Artisan AI Studio</h1>
+            <p class="tagline">Voice-to-Catalog Microservice &bull; Tri-Lingual Pipeline</p>
+        </div>
+        
+        <div class="backend-selector">
+            <label for="endpoint-select">Backend Target:</label>
+            <select id="endpoint-select">
+                <option value="http://localhost:8000" selected>Local Server (http://localhost:8000)</option>
+                <option value="https://artisan-speech-translation.onrender.com">Render Live (artisan-speech-translation.onrender.com)</option>
+                <option value="custom">Custom URL...</option>
+            </select>
+            <input type="text" id="custom-endpoint" placeholder="https://..." style="display:none;">
+            <div id="health-indicator" class="health-pill checking">
+                <span class="dot"></span> <span id="health-text">Checking API...</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Left Panel: Voice & Controls -->
+        <section class="card input-card">
+            <!-- Navigation Tabs -->
+            <div class="panel-tabs">
+                <button class="panel-tab active" data-tab="voice-panel">
+                    <span class="tab-icon">🎙️</span> Voice Pipeline
+                </button>
+                <button class="panel-tab" data-tab="description-panel">
+                    <span class="tab-icon">✨</span> Product Description
+                </button>
+                <button class="panel-tab" data-tab="translate-panel">
+                    <span class="tab-icon">🌐</span> Direct Translate
+                </button>
+            </div>
+
+            <!-- Tab 1: Voice Onboarding -->
+            <div id="voice-panel" class="tab-content active">
+                <div class="card-header" style="padding-top: 12px;">
+                    <h2>1. Artisan Voice Onboarding</h2>
+                    <span class="pill">Speech-to-Text &bull; Catalog Draft</span>
+                </div>
+
+                <div class="mic-zone">
+                    <div class="mic-ring" id="mic-ring">
+                        <button id="record-btn" class="mic-button" title="Click to Record">
+                            <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="mic-status" id="mic-status">Click to Speak (English / हिंदी / मराठी)</div>
+                    <div class="recording-timer" id="recording-timer" style="display:none;">00:00</div>
+                </div>
+
+                <div class="language-picker" style="display:none;">
+                    <label>STT Language Hint <span style="font-weight:400;opacity:0.7;">(backend auto-detects):</span></label>
+                    <div class="radio-chips">
+                        <label class="chip active"><input type="radio" name="spoken_lang" value="hi" checked> 🇮🇳 Hindi</label>
+                        <label class="chip"><input type="radio" name="spoken_lang" value="mr"> 🇮🇳 Marathi</label>
+                        <label class="chip"><input type="radio" name="spoken_lang" value="en"> 🇬🇧 English</label>
+                    </div>
+                </div>
+
+                <div class="presets-section">
+                    <label class="section-label">⚡ One-Click Audio Presets (No Mic Needed):</label>
+                    <div class="preset-buttons">
+                        <button class="preset-btn" data-preset="diya_hi">
+                            <span class="preset-lang">HI</span>
+                            <span class="preset-title">पीतल का दीया (Brass Diya)</span>
+                        </button>
+                        <button class="preset-btn" data-preset="saree_mr">
+                            <span class="preset-lang">MR</span>
+                            <span class="preset-title">पैठणी साडी (Paithani Saree)</span>
+                        </button>
+                        <button class="preset-btn" data-preset="pot_hi">
+                            <span class="preset-lang">HI</span>
+                            <span class="preset-title">मिट्टी की हांडी (Clay Pot)</span>
+                        </button>
+                        <button class="preset-btn" data-preset="chanderi_en">
+                            <span class="preset-lang">EN</span>
+                            <span class="preset-title">Chanderi Silk Saree</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Dedicated Qwen Description Generator -->
+            <div id="description-panel" class="tab-content" style="display:none;">
+                <div class="card-header" style="padding-top: 12px;">
+                    <h2>AI Artisan Description</h2>
+                </div>
+                <p class="section-desc">
+                    Transform raw, informal artisan speech into a customer-ready, compelling e-commerce product description in English.
+                </p>
+
+                <div class="language-picker" style="margin-top: 14px;">
+                    <label>Artisan Input Language:</label>
+                    <div class="radio-chips">
+                        <label class="chip active"><input type="radio" name="desc_lang" value="hi" checked> 🇮🇳 Hindi</label>
+                        <label class="chip"><input type="radio" name="desc_lang" value="mr"> 🇮🇳 Marathi</label>
+                        <label class="chip"><input type="radio" name="desc_lang" value="en"> 🇬🇧 English</label>
+                    </div>
+                </div>
+
+                <div class="presets-section" style="margin-top: 12px;">
+                    <label class="section-label">⚡ Quick Sample Artisan Inputs:</label>
+                    <div class="preset-chips">
+                        <button class="sample-chip" data-desc-lang="en" data-desc-text="kolhapuri chappal, pure leather, 1000 rs.">👡 Kolhapuri Chappal (EN)</button>
+                        <button class="sample-chip" data-desc-lang="hi" data-desc-text="यह हाथ से बना पीतल का मयूर दीया है, पूजा और आरती के लिए, 750 रुपये, शुद्ध पीतल।">🪔 Brass Peacock Diya (HI)</button>
+                        <button class="sample-chip" data-desc-lang="mr" data-desc-text="हे हातांनी विणलेले पैठणी साडी आहे, मोर नक्षी, अस्सल रेशीम, 3500 रुपये.">🥻 Paithani Saree (MR)</button>
+                        <button class="sample-chip" data-desc-lang="en" data-desc-text="This is a handloom chanderi silk saree with gold zari border, 2800 rupees, traditional weave.">🧣 Chanderi Saree (EN)</button>
+                        <button class="sample-chip" data-desc-lang="hi" data-desc-text="जयपुर ब्लू पॉटरी फूलदान, हाथ से बनी फूलों की डिजाइन, 950 रुपये।">🏺 Blue Pottery (HI)</button>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 16px;">
+                    <label for="desc-input" style="font-weight: 600; font-size: 0.88rem; color: var(--text-main);">
+                        Artisan Raw Speech / Notes:
+                    </label>
+                    <textarea id="desc-input" class="styled-input styled-textarea" rows="4" placeholder="Enter what the artisan said (e.g., यह हाथ से बना पीतल का दीया है...)"></textarea>
+                </div>
+
+                <button id="generate-desc-btn" class="primary-btn" style="width: 100%; margin-top: 12px;">
+                    ✨ Generate Customer Description
+                </button>
+
+                <!-- Dedicated Description Result Box -->
+                <div id="desc-result-box" class="desc-result-card" style="display:none; margin-top: 18px;">
+                    <div class="desc-result-header">
+                        <span class="badge badge-accent">Generated Description</span>
+                        <span id="desc-source-badge" class="badge badge-gold">Artisan Knowledge Engine</span>
+                    </div>
+                    <p id="desc-result-text" class="desc-text-content"></p>
+                    <div class="desc-result-actions">
+                        <button id="copy-desc-btn" class="chip-btn" title="Copy to clipboard">📋 Copy</button>
+                        <button id="send-to-catalog-btn" class="chip-btn chip-btn-accent">🌐 Send to Multilingual Catalog &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Direct Translation -->
+            <div id="translate-panel" class="tab-content" style="display:none;">
+                <div class="card-header" style="padding-top: 12px;">
+                    <h2>Direct Translation</h2>
+                    <span class="pill">Google Cloud API</span>
+                </div>
+                <p class="section-desc">Translate existing product title and description across English, Hindi, and Marathi.</p>
+                <div class="input-group" style="margin-top: 14px;">
+                    <input type="text" id="manual-name" class="styled-input" placeholder="Product Title (e.g. Handcrafted Brass Diya)">
+                    <textarea id="manual-desc" class="styled-input styled-textarea" placeholder="Product Description..." style="margin-top: 10px;"></textarea>
+                </div>
+                <button id="translate-btn" class="secondary-btn" style="width: 100%; margin-top: 12px;">Translate Across EN / HI / MR</button>
+            </div>
+        </section>
+
+        <!-- Right Panel: Real-Time Results & Catalog Cards -->
+        <section class="card results-card">
+            <div class="card-header">
+                <h2>Live Multilingual Catalog Result</h2>
+                <div class="header-badges">
+                    <span id="detected-lang-badge" class="badge badge-accent">Awaiting Voice</span>
+                    <span id="qwen-badge" class="badge badge-gold" style="display:none;"></span>
+                </div>
+            </div>
+
+            <!-- Loader -->
+            <div id="loading-spinner" class="loading-overlay" style="display:none;">
+                <div class="artisan-spinner"></div>
+                <p id="loading-text">Processing with AI pipeline...</p>
+            </div>
+
+            <!-- Transcript Banner -->
+            <div class="transcript-box">
+                <label class="box-label">🎙️ Artisan Spoken Transcript:</label>
+                <div id="transcript-text" class="transcript-content">
+                    <em>Click the microphone or choose a preset on the left to see the AI pipeline in action...</em>
+                </div>
+                <div class="transcript-meta">
+                    <span id="transcript-conf">Confidence: —</span>
+                    <span id="extracted-material">Material: —</span>
+                </div>
+            </div>
+
+            <!-- Tabbed Multilingual Output -->
+            <div class="catalog-tabs">
+                <button class="tab-btn active" data-tab="tab-en">🇬🇧 English</button>
+                <button class="tab-btn" data-tab="tab-hi">🇮🇳 हिंदी (Hindi)</button>
+                <button class="tab-btn" data-tab="tab-mr">🇮🇳 मराठी (Marathi)</button>
+            </div>
+
+            <div class="tab-contents">
+                <div id="tab-en" class="tab-pane active">
+                    <div class="catalog-entry">
+                        <label class="entry-label">English Product Title</label>
+                        <h3 id="card-title-en" class="catalog-title">—</h3>
+                        <label class="entry-label">AI Catalog Description</label>
+                        <p id="card-desc-en" class="catalog-desc">—</p>
+                    </div>
+                </div>
+
+                <div id="tab-hi" class="tab-pane">
+                    <div class="catalog-entry">
+                        <label class="entry-label">हिंदी उत्पाद शीर्षक (Hindi Title)</label>
+                        <h3 id="card-title-hi" class="catalog-title devanagari">—</h3>
+                        <label class="entry-label">हिंदी उत्पाद विवरण (Hindi Description)</label>
+                        <p id="card-desc-hi" class="catalog-desc devanagari">—</p>
+                    </div>
+                </div>
+
+                <div id="tab-mr" class="tab-pane">
+                    <div class="catalog-entry">
+                        <label class="entry-label">मराठी उत्पादन शीर्षक (Marathi Title)</label>
+                        <h3 id="card-title-mr" class="catalog-title devanagari">—</h3>
+                        <label class="entry-label">मराठी उत्पादन वर्णन (Marathi Description)</label>
+                        <p id="card-desc-mr" class="catalog-desc devanagari">—</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Status -->
+            <div class="db-status-box">
+                <div class="db-info">
+                    <strong>Supabase Table 007 (`product_translations`):</strong>
+                    <span id="db-status-pill" class="pill pill-idle">Ready to Sync</span>
+                </div>
+                <button id="save-supabase-btn" class="primary-btn">Save Translations to Supabase</button>
+            </div>
+
+            <!-- Raw JSON Toggle -->
+            <details class="json-inspector">
+                <summary>🔍 Inspect Raw Backend JSON Response</summary>
+                <pre id="raw-json-output">{}</pre>
+            </details>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

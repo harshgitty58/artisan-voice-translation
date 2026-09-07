@@ -43,6 +43,11 @@ qwen-artisan-adapter/
 logs/
 tmp/
 temp/
+pipeline_result.json
+*.wav
+*.webm
+*.mp3
+*.ogg
 
 # OS Specific
 .DS_Store

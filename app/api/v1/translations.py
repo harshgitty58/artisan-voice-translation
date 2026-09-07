@@ -4,6 +4,8 @@ from fastapi import APIRouter, HTTPException, Query, status
 
 from app.core.config import settings
 from app.schemas.translation import (
+    DescriptionGenerateRequest,
+    DescriptionGenerateResponse,
     ExtractedProductDraft,
     LanguageDetectRequest,
     LanguageDetectResponse,
@@ -302,7 +304,9 @@ async def run_voice_catalog_pipeline(payload: VoicePipelineRequest):
 
     translate_request = TranslateCatalogRequest(
         product_id=payload.product_id,
-        source_language=SupportedLanguage.ENGLISH,
+        # Use the actual detected language as source so the translation service
+        # knows what language it is translating FROM (fixes EN→EN short-circuit bug).
+        source_language=detected_lang,
         target_languages=[SupportedLanguage.ENGLISH, SupportedLanguage.HINDI, SupportedLanguage.MARATHI],
         name=extracted.name_candidate or transcript[:80],
         description=english_description,
@@ -343,3 +347,31 @@ async def run_voice_catalog_pipeline(payload: VoicePipelineRequest):
         skipped_languages=translation_result.skipped_languages,
         is_mock=speech_result.is_mock or lang_is_mock or translation_result.is_mock,
     )
+
+
+# ===========================================================================
+# Dedicated Description Generator (Qwen2.5 LoRA & Fallback)
+# ===========================================================================
+
+@router.post(
+    "/description/generate",
+    response_model=DescriptionGenerateResponse,
+    tags=["Description Generator"],
+    summary="Generate customer-ready English artisan catalog description",
+)
+async def generate_artisan_description(payload: DescriptionGenerateRequest):
+    """
+    Transforms informal artisan speech/notes into a polished English product description.
+    Uses Fine-Tuned Qwen2.5 LoRA model, with automatic fallback to Google Cloud Translation.
+    """
+    desc, source = await description_generation_service.generate_with_details(
+        speech_input=payload.speech_input,
+        lang=payload.language.value,
+    )
+    return DescriptionGenerateResponse(
+        input_text=payload.speech_input,
+        language=payload.language,
+        english_description=desc,
+        generation_source=source,
+    )
+

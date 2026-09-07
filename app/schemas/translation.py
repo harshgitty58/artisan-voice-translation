@@ -184,3 +184,18 @@ class VoicePipelineResponse(BaseModel):
     skipped_languages: List[SupportedLanguage] = Field(default_factory=list)
     is_mock: bool = False
 
+
+class DescriptionGenerateRequest(BaseModel):
+    """Direct request to test artisan description generation."""
+    speech_input: str = Field(..., min_length=3, description="Informal artisan speech or product notes")
+    language: SupportedLanguage = Field(SupportedLanguage.HINDI, description="Input language (en, hi, mr)")
+
+
+class DescriptionGenerateResponse(BaseModel):
+    """Result of description generation."""
+    input_text: str
+    language: SupportedLanguage
+    english_description: str
+    generation_source: str = Field(..., description="Method used: qwen_lora, google_translate_pipeline, or template_fallback")
+
+
